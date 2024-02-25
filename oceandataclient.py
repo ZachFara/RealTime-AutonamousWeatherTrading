@@ -9,10 +9,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     # Connect to server and send data
     sock.connect((HOST, PORT))
 
-    numbers = []
-    for i in range(10):
+    columns = ["Buoy", "Lat", "Long", "Month", "Day", "Hour", "Minute", "Depth", "Temp"]
+    # make this the number of buoys
+    for i in range(12):
         # Receive data from the server and shut down
-        received = float(str(sock.recv(1024), "utf-8"))
-        numbers.append(received)
-        print(numbers[i])
+        received = str(sock.recv(1024), "utf-8")
+        print(received)
+
 print("Received: {}".format(received))
