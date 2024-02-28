@@ -32,37 +32,39 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             ["EAZC1", 36.846, 121.754],
             ["GDQM6", 30.357, 88.463],
         ]
-        for buoy in buoy_list:
-            # URL of the website to scrape
-            url = "https://www.ndbc.noaa.gov/data/realtime2/" + buoy[0] + ".ocean"
+        while True:
+            for buoy in buoy_list:
+                # URL of the website to scrape
+                url = "https://www.ndbc.noaa.gov/data/realtime2/" + buoy[0] + ".ocean"
 
-            # Send a GET request to the URL
-            response = requests.get(url)
+                # Send a GET request to the URL
+                response = requests.get(url)
 
-            # Check if the request was successful (status code 200)
-            if response.status_code == 200:
-                # Parse the HTML content of the website
-                soup = BeautifulSoup(response.content, "html.parser")
+                # Check if the request was successful (status code 200)
+                if response.status_code == 200:
+                    # Parse the HTML content of the website
+                    soup = BeautifulSoup(response.content, "html.parser")
 
-                # Load the text content into a pandas DataFrame
-                df = pd.read_csv(
-                    StringIO(soup.get_text()), delim_whitespace=True, header=[0, 1]
-                )
-                send_str = [
-                    str(buoy[0]),
-                    str(buoy[1]),
-                    str(buoy[2]),
-                    str(df.loc[0]["MM"][0]),
-                    str(df.loc[0]["DD"][0]),
-                    str(df.loc[0]["hh"][0]),
-                    str(df.loc[0]["mm"][0]),
-                    str(df.loc[0]["DEPTH"][0]),
-                    str(df.loc[0]["OTMP"][0]),
-                ]
-                send_str = " ".join(send_str)
-                self.request.sendall(bytes(send_str, "utf-8"))
-            else:
-                print("Failed to retrieve the webpage")
+                    # Load the text content into a pandas DataFrame
+                    df = pd.read_csv(
+                        StringIO(soup.get_text()), delim_whitespace=True, header=[0, 1]
+                    )
+                    send_str = [
+                        str(buoy[0]),
+                        str(buoy[1]),
+                        str(buoy[2]),
+                        str(df.loc[0]["MM"][0]),
+                        str(df.loc[0]["DD"][0]),
+                        str(df.loc[0]["hh"][0]),
+                        str(df.loc[0]["mm"][0]),
+                        str(df.loc[0]["DEPTH"][0]),
+                        str(df.loc[0]["OTMP"][0]),
+                    ]
+                    send_str = " ".join(send_str)
+                    self.request.sendall(bytes(send_str + "|", "utf-8"))
+                else:
+                    print("Failed to retrieve the webpage")
+            time.sleep(60)
 
 
 if __name__ == "__main__":

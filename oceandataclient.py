@@ -1,5 +1,6 @@
 import socket
 import sys
+import time
 
 HOST, PORT = "localhost", 9999
 data = " ".join(sys.argv[1:])
@@ -10,10 +11,35 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.connect((HOST, PORT))
 
     columns = ["Buoy", "Lat", "Long", "Month", "Day", "Hour", "Minute", "Depth", "Temp"]
+    buoy_list = [
+        ["44029"],
+        ["44030"],
+        ["JBYF1"],
+        ["JCTN4"],
+        ["44062"],
+        ["46098"],
+        ["46116"],
+        ["41052"],
+        ["51045"],
+        ["CHQO3"],
+        ["EAZC1"],
+        ["GDQM6"],
+    ]
+    latest_entry = [" "] * 12
     # make this the number of buoys
-    for i in range(12):
-        # Receive data from the server and shut down
+    for i in range(10):
+
         received = str(sock.recv(1024), "utf-8")
-        print(received)
+        entries = received.split("|")
+        for entry in entries:
+            if len(entry) > 0:
+                if latest_entry[buoy_list.index([entry.split(" ")[0]])] != entry:
+                    latest_entry[buoy_list.index([entry.split(" ")[0]])] = entry
+                    print("Updated " + entry)
+        print(
+            "===================================================================================="
+        )
+        time.sleep(60)
+
 
 print("Received: {}".format(received))
