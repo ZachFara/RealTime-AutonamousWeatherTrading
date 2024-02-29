@@ -3,8 +3,6 @@ import yfinance as yf
 import time
 import math
 
-# TODO: Fix the na values in this server
-
 class MyTCPHandler(socketserver.BaseRequestHandler):
     """
     The request handler class for our server.
@@ -53,7 +51,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             
 
             # Wait before sending the next update
-            time.sleep(1)  # Sleep for 60 seconds
+            time.sleep(15)  # Sleep for 60 seconds
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 9999

@@ -68,7 +68,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         print("Client disconnected: Awaiting new connection...")
                 else:
                     print("Failed to retrieve the webpage")
-            time.sleep(1)
+            time.sleep(15)
 
 
 if __name__ == "__main__":
