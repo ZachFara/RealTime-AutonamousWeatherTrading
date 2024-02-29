@@ -1,6 +1,9 @@
 import socketserver
 import yfinance as yf
 import time
+import math
+
+# TODO: Fix the na values in this server
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
     """
@@ -26,17 +29,31 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             # Append each commodity's latest data to the string
             for ticker in tickers:
                 try:
+
                     latest_data = commodity_data.loc[latest_timestamp][('Adj Close', ticker)]
+                    if math.isnan(latest_data):
+                        
+                        ticker_data = commodity_data[('Adj Close', ticker)]
+                        ticker_data = ticker_data.dropna()
+                    
+                        ticker_latest_timestamp = max(ticker_data.index)
+
+                        latest_data = commodity_data.loc[ticker_latest_timestamp][('Adj Close', ticker)]
                     send_str += f"{ticker}: {latest_data}\n"
                 except KeyError:
                     # In case the ticker data is missing for the latest timestamp, skip it
                     send_str += f"{ticker}: Data not available\n"
             
             # Send the data string to the client
-            self.request.sendall(bytes(send_str, "utf-8"))
+                    
+            try:
+                self.request.sendall(bytes(send_str, "utf-8"))
+            except BrokenPipeError:
+                print("Client disconnected: Awaiting new connection...")
+            
 
             # Wait before sending the next update
-            time.sleep(60)  # Sleep for 60 seconds
+            time.sleep(1)  # Sleep for 60 seconds
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 9999
@@ -46,3 +63,4 @@ if __name__ == "__main__":
         print("Server started at {}:{}".format(HOST, PORT))
         # Activate the server; this will keep running until you interrupt the program with Ctrl-C
         server.serve_forever()
+

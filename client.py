@@ -1,9 +1,10 @@
 import socket
 import time
+import threading
 
 # Define the server addresses and ports
 servers = [("localhost", 9999), ("localhost", 8888)]  # Example: Second server on port 8888
-attempt_interval = 60  # Time between attempts in seconds
+attempt_interval = 1  # Time between attempts in seconds
 
 # Define buoy list and a dictionary to hold the latest entries
 buoy_list = [
@@ -13,8 +14,8 @@ buoy_list = [
 ]
 latest_entry = {buoy: None for buoy in buoy_list}
 
-while True:
-    for host, port in servers:
+def connect_to_server(host, port):
+    while True:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 # Attempt to connect to the server
@@ -26,7 +27,6 @@ while True:
                 data = sock.recv(4096)  # Adjust buffer size as needed
                 received = data.decode('utf-8')
                 print(f"Received data from {host}:{port}")
-
                 print(f"Received: {received}")
 
                 # Process the received data
@@ -41,7 +41,13 @@ while True:
 
                 print("====================================================================================")
 
+            ##### IMPLEMENT THE TRADING HERE
+
         except ConnectionRefusedError:
             print(f"Connection to {host}:{port} refused. Trying the next server.")
 
-        time.sleep(attempt_interval)  # Wait before attempting the next connection
+
+# Create and start a separate thread for each server
+for host, port in servers:
+    thread = threading.Thread(target=connect_to_server, args=(host, port))
+    thread.start()

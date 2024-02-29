@@ -61,10 +61,14 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         str(df.loc[0]["OTMP"][0]),
                     ]
                     send_str = " ".join(send_str)
-                    self.request.sendall(bytes(send_str + "|", "utf-8"))
+                    
+                    try:
+                        self.request.sendall(bytes(send_str, "utf-8"))
+                    except BrokenPipeError:
+                        print("Client disconnected: Awaiting new connection...")
                 else:
                     print("Failed to retrieve the webpage")
-            time.sleep(60)
+            time.sleep(1)
 
 
 if __name__ == "__main__":

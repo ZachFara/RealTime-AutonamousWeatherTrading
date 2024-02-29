@@ -38,7 +38,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         print(
             "===================================================================================="
         )
-        time.sleep(60)
+        time.sleep(1)
 
 
 print("Received: {}".format(received))
