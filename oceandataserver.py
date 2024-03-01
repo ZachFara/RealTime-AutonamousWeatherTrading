@@ -61,9 +61,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         str(df.loc[0]["OTMP"][0]),
                     ]
                     send_str = " ".join(send_str)
-                    
+
                     try:
-                        self.request.sendall(bytes(send_str, "utf-8"))
+                        self.request.sendall(bytes(send_str + "|", "utf-8"))
                     except BrokenPipeError:
                         print("Client disconnected: Awaiting new connection...")
                 else:

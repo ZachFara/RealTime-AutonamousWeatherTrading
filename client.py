@@ -29,7 +29,9 @@ buoy_list = [
 symbol_list = ["CORN", "SOYB", "WEAT", "NG=F", "CL=F"]
 latest_entry = {buoy: None for buoy in buoy_list}
 latest_entry.update({symbol: None for symbol in symbol_list})
+latest_entry.update({"Latest Data Timestamp": None})
 ocean_change = 0
+lock = threading.Lock()
 # Signals are generated through future price connection
 signal_list = []
 
@@ -38,6 +40,7 @@ signal_list = []
 
 
 def connect_to_server(host, port):
+    global ocean_change
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((host, port))
         while True:
@@ -55,6 +58,8 @@ def connect_to_server(host, port):
                 if port == 9999:  # Stock data
                     data_file = StringIO(received)
 
+                    time_updated = False
+
                     # Read each line from the file-like object
                     for line in data_file:
                         # Split each line at the colon (":")
@@ -63,10 +68,19 @@ def connect_to_server(host, port):
                         symbol = parts[0]
                         value = parts[1].strip()
 
-                        # Updates the signal
-                        if latest_entry.get(symbol):
+                        if (
+                            symbol == "Latest Data Timestamp"
+                            and value != latest_entry.get("Latest Data Timestamp", " ")
+                        ):
+                            time_updated = True
 
-                            change = float(value) - latest_entry[symbol]
+                        # Updates the signal
+                        if (
+                            latest_entry.get(symbol)
+                            and symbol != "Latest Data Timestamp"
+                        ):
+
+                            change = float(value) - float(latest_entry[symbol])
                             if change > 0 and ocean_change < 0:
                                 signal_list.append([symbol, value, -1])
                             elif change < 0 and ocean_change > 0:
@@ -74,6 +88,13 @@ def connect_to_server(host, port):
                             else:
                                 signal_list.append([symbol, value, 0])
                         latest_entry[symbol] = value
+
+                        if time_updated:
+                            with lock:
+                                ocean_change = 0
+                                print(
+                                    "Time updated, ocean change is " + str(ocean_change)
+                                )
 
                         # Updates every 5 mins (5 symbols every 15 seconds)
                         if len(signal_list) % 100 == 0:
@@ -100,7 +121,8 @@ def connect_to_server(host, port):
                                     )
                                 latest_entry[buoy_id] = entry
                                 print(f"Updated {buoy_id}: {entry}")
-                            ocean_change = total_change
+                                with lock:
+                                    ocean_change += total_change
                     print(ocean_change)
 
                     print(
