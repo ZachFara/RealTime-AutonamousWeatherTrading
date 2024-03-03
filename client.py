@@ -37,7 +37,9 @@ signal_list = []
 
 
 # Profit and loss book based on what price we bought and sold at
+from PnLBook import PnLBook
 
+profit_loss_book = PnLBook()
 
 def connect_to_server(host, port):
     global ocean_change
