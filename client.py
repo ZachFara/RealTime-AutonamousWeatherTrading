@@ -35,11 +35,21 @@ lock = threading.Lock()
 # Signals are generated through future price connection
 signal_list = []
 
+def process_signals(signal,prev_signal):
+    
+    if signal == 1:
+        if prev_signal == 1:
+            return "Hold"
+        else:
+            return "Buy"
+    elif signal == -1:
+        return "Sell"
+    else: # signal == 0
+        return "Sell"
 
 # Profit and loss book based on what price we bought and sold at
 from PnLBook import PnLBook
-
-profit_loss_book = PnLBook()
+book = PnLBook(verbose = 1)
 
 def connect_to_server(host, port):
     global ocean_change
@@ -89,6 +99,16 @@ def connect_to_server(host, port):
                                 signal_list.append([symbol, value, 1])
                             else:
                                 signal_list.append([symbol, value, 0])
+
+                            # Process the signals here
+                            order = process_signals(signal_list[-1][2],signal_list[-2][2])
+                            if order == "Buy":
+                                book.buy(symbol, float(value))
+                            elif order == "Sell":
+                                book.sell(symbol, float(value))
+                            else:
+                                print(f"Holding {symbol} at {value}")
+
                         latest_entry[symbol] = value
 
                         if time_updated:

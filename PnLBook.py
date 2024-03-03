@@ -7,11 +7,12 @@ class PnLBook:
     It should be able to track the performance of any trading strategy that we implement.
     """
 
-    def __init__(self):
+    def __init__(self, verbose = 0):
         self.trades = [] # This will hold the trades that we make. We will later use these to calculate the average return and the standard deviation of the returns
         self.assets = {"Money": 10_000} # This will be our account basically which will hold the total assets of our trader
         self.order_id = 1 # This will be the unique identifier for each trade
         self.open_orders = {} # This will hold the open orders that we have. We will use this to match the sell orders with the buy orders
+        self.verbose = verbose
 
     def buy(self, symbol, price, amount=1):
         """
@@ -46,6 +47,10 @@ class PnLBook:
             else:
                 self.assets[symbol] = amount
             self.assets["Money"] -= price * amount
+
+            if self.verbose:
+                print(f"Order ID: {trade['Order ID']}, Symbol: {trade['Symbol']}, Buy Price: {trade['Buy Price']}, Amount: {amount}")
+
         else:
             pass 
 
@@ -80,6 +85,10 @@ class PnLBook:
             
             # Update the assets dictionary with the money that we made from the sale
             self.assets["Money"] += price * amount
+
+            if self.verbose:
+                print(f"Order ID: {order_id}, Symbol: {symbol}, Sell Price: {price}, Amount: {amount}")
+                
         else:
             pass
 
