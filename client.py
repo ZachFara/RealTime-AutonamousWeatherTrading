@@ -101,13 +101,14 @@ def connect_to_server(host, port):
                                 signal_list.append([symbol, value, 0])
 
                             # Process the signals here
-                            order = process_signals(signal_list[-1][2],signal_list[-2][2])
-                            if order == "Buy":
-                                book.buy(symbol, float(value))
-                            elif order == "Sell":
-                                book.sell(symbol, float(value))
-                            else:
-                                print(f"Holding {symbol} at {value}")
+                            if len(signal_list) > 1:
+                                order = process_signals(signal_list[-1][2],signal_list[-2][2])
+                                if order == "Buy":
+                                    book.buy(symbol, float(value))
+                                elif order == "Sell":
+                                    book.sell(symbol, float(value))
+                                else:
+                                    print(f"Holding {symbol} at {value}")
 
                         latest_entry[symbol] = value
 
