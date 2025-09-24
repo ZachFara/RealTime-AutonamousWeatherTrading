@@ -1,6 +1,6 @@
 # RealTime-AutonomousWeatherTrading  
 
-In this project, David Bukowski and I explore how weather- and temperature-based signals can be leveraged to forecast commodity prices, with particular attention to their relationship to oil and coal.  
+In this project, David Bukowski and I explore how weather and temperature-based signals can be leveraged to forecast commodity prices, with particular attention to their relationship to oil and coal.  
 
 The project serves two purposes:  
 
